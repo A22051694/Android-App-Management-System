@@ -1,6 +1,6 @@
 # Android Management System (AMS)
 
-A focused Android app control center for tracking ideas, active builds, and published apps without unnecessary dashboard clutter.
+A starter full-stack dashboard for managing lots of Android app ideas in one place.
 
 ## Stack
 
@@ -10,67 +10,21 @@ A focused Android app control center for tracking ideas, active builds, and publ
 - **Styling:** Tailwind CSS
 - **Hosting:** Vercel
 
-## Product structure
+## Project structure
 
-The app is intentionally tight and centered on the core workflow:
+```text
+.
+├── backend/   # Express API for app ideas
+├── frontend/  # React dashboard
+└── .env.example
+```
 
-- Dashboard
-- Apps List
-- Add / Edit App
-- App Detail
-- Idea Vault
-- Settings
+## Features
 
-## Core features
-
-- CRUD for apps: create, list, edit, and delete.
-- Dashboard stats for total apps, Play Store apps, personal apps, and ideas not started yet.
-- Search plus filters for status, type, tags, and custom categories.
-- Recent apps list for quick access.
-- Idea Vault for rough concepts before converting them into full app records.
-- Minimal settings page with profile and default template placeholders.
-
-## Data model
-
-### `apps`
-
-Suggested columns in Supabase:
-
-- `id` uuid primary key default `gen_random_uuid()`
-- `name` text not null
-- `type` text not null
-- `status` text not null
-- `category` text not null
-- `description` text
-- `links` jsonb default `'{}'::jsonb`
-- `notes` text
-- `tags` text[] default `'{}'`
-- `created_at` timestamp with time zone default `now()`
-- `updated_at` timestamp with time zone default `now()`
-
-### `ideas`
-
-Suggested columns in Supabase:
-
-- `id` uuid primary key default `gen_random_uuid()`
-- `title` text not null
-- `description` text
-- `category` text
-- `tags` text[] default `'{}'`
-- `created_at` timestamp with time zone default `now()`
-
-## API endpoints
-
-- `GET /api/health`
-- `GET /api/apps`
-- `GET /api/apps/:id`
-- `POST /api/apps`
-- `PUT /api/apps/:id`
-- `DELETE /api/apps/:id`
-- `GET /api/ideas`
-- `POST /api/ideas`
-- `DELETE /api/ideas/:id`
-- `POST /api/ideas/:id/convert`
+- Dashboard for tracking app ideas, priorities, and pipeline stages.
+- Quick capture form for new Android app ideas.
+- Supabase-ready API with in-memory fallback for local development.
+- Tailwind-powered interface with responsive stat cards and table views.
 
 ## Getting started
 
@@ -91,9 +45,29 @@ Suggested columns in Supabase:
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:4000`
 
-## Vercel notes
+## Supabase schema
+
+Create an `apps` table in Supabase with columns similar to:
+
+- `id` uuid primary key default `gen_random_uuid()`
+- `name` text not null
+- `platform` text not null default `'Android'`
+- `status` text not null
+- `category` text not null
+- `priority` text not null
+- `owner` text not null
+- `summary` text not null
+- `created_at` timestamp with time zone default `now()`
+
+## Vercel deployment notes
 
 - Deploy the React frontend as a Vite application.
-- Deploy the Express backend separately, or convert the routes into Vercel serverless functions.
-- Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Vercel environment variables.
-- The local fallback mode is useful for UI development before Supabase tables exist.
+- Deploy the Node backend as a separate service or adapt `backend/src/server.js` into Vercel serverless functions.
+- Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` as Vercel environment variables.
+
+## Next ideas
+
+- Add authentication with Supabase Auth.
+- Add drag-and-drop Kanban views.
+- Add tags, deadlines, and competitor research links.
+- Add analytics for idea validation and launch readiness.
