@@ -10,6 +10,15 @@ A focused Android app control center for tracking ideas, active builds, and publ
 - **Styling:** Tailwind CSS
 - **Hosting:** Vercel
 
+## Project structure
+
+```text
+.
+├── backend/   # Express API for app ideas
+├── frontend/  # React dashboard
+└── .env.example
+```
+
 ## Product structure
 
 The app is intentionally tight and centered on the core workflow:
@@ -97,3 +106,10 @@ Suggested columns in Supabase:
 - Deploy the Express backend separately, or convert the routes into Vercel serverless functions.
 - Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Vercel environment variables.
 - The local fallback mode is useful for UI development before Supabase tables exist.
+
+## Next ideas
+
+- Add authentication with Supabase Auth.
+- Add drag-and-drop Kanban views.
+- Add tags, deadlines, and competitor research links.
+- Add analytics for idea validation and launch readiness.
