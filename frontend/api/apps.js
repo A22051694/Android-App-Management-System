@@ -1,75 +1,7 @@
+import { sendJson, parseBody } from './lib/http.js';
+import { fallbackApps } from './lib/store.js';
 import { hasSupabaseConfig, supabase } from './lib/supabase.js';
-
-const seedApps = [
-  {
-    id: '1',
-    name: 'Focus Forge',
-    platform: 'Android',
-    status: 'Idea',
-    category: 'Productivity',
-    priority: 'High',
-    owner: 'You',
-    summary: 'Gamified focus sessions with streaks, rewards, and deep work analytics.'
-  },
-  {
-    id: '2',
-    name: 'Fit Pantry',
-    platform: 'Android',
-    status: 'Research',
-    category: 'Health',
-    priority: 'Medium',
-    owner: 'You',
-    summary: 'AI meal planner that builds recipes from groceries already at home.'
-  },
-  {
-    id: '3',
-    name: 'Pocket PM',
-    platform: 'Android',
-    status: 'Prototype',
-    category: 'Business',
-    priority: 'High',
-    owner: 'You',
-    summary: 'Simple project manager for solo founders shipping multiple app ideas.'
-  }
-];
-
-const fallbackApps = [...seedApps];
-
-const sendJson = (res, statusCode, payload) => {
-  res.statusCode = statusCode;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(payload));
-};
-
-const parseBody = (req) =>
-  new Promise((resolve, reject) => {
-    if (req.body && typeof req.body === 'object') {
-      resolve(req.body);
-      return;
-    }
-
-    let raw = '';
-    req.on('data', (chunk) => {
-      raw += chunk;
-    });
-
-    req.on('end', () => {
-      if (!raw) {
-        resolve({});
-        return;
-      }
-
-      try {
-        resolve(JSON.parse(raw));
-      } catch {
-        reject(new Error('Invalid JSON body.'));
-      }
-    });
-
-    req.on('error', reject);
-  });
-
-const isNonEmptyString = (value) => typeof value === 'string' && value.trim().length > 0;
+import { createId, normalizeAppPayload, timestamp, validateAppPayload } from './lib/model.js';
 
 export default async function handler(req, res) {
   if (!['GET', 'POST'].includes(req.method)) {
@@ -82,7 +14,7 @@ export default async function handler(req, res) {
       return sendJson(res, 200, { source: 'fallback', data: fallbackApps });
     }
 
-    const { data, error } = await supabase.from('apps').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('apps').select('*').order('updated_at', { ascending: false });
 
     if (error) {
       return sendJson(res, 500, { message: 'Failed to load apps.', details: error.message });
@@ -93,22 +25,21 @@ export default async function handler(req, res) {
 
   let payload;
   try {
-    payload = await parseBody(req);
+    payload = normalizeAppPayload(await parseBody(req));
   } catch (error) {
     return sendJson(res, 400, { message: error.message || 'Invalid JSON body.' });
   }
 
-  if (!isNonEmptyString(payload.name) || !isNonEmptyString(payload.status) || !isNonEmptyString(payload.category)) {
-    return sendJson(res, 400, { message: 'name, status, and category must be non-empty strings.' });
+  const validationError = validateAppPayload(payload);
+  if (validationError) {
+    return sendJson(res, 400, { message: validationError });
   }
 
   if (!hasSupabaseConfig) {
     const record = {
-      id: String(fallbackApps.length + 1),
-      platform: 'Android',
-      priority: 'Medium',
-      owner: 'You',
-      summary: '',
+      id: createId('app'),
+      created_at: timestamp(),
+      updated_at: timestamp(),
       ...payload
     };
 
@@ -119,11 +50,8 @@ export default async function handler(req, res) {
   const { data, error } = await supabase
     .from('apps')
     .insert({
-      platform: 'Android',
-      priority: 'Medium',
-      owner: 'You',
-      summary: '',
-      ...payload
+      ...payload,
+      updated_at: timestamp()
     })
     .select()
     .single();

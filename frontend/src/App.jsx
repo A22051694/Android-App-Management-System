@@ -518,6 +518,9 @@ export default function App() {
 
   const loadApps = async () => {
     const response = await fetch('/api/apps');
+    if (!response.ok) {
+      throw new Error('Failed to load apps.');
+    }
     const payload = await response.json();
     setApps(payload.data ?? []);
     setSource(payload.source ?? 'api');
@@ -525,12 +528,19 @@ export default function App() {
 
   const loadIdeas = async () => {
     const response = await fetch('/api/ideas');
+    if (!response.ok) {
+      throw new Error('Failed to load ideas.');
+    }
     const payload = await response.json();
     setIdeas(payload.data ?? []);
   };
 
   useEffect(() => {
-    Promise.all([loadApps(), loadIdeas()]).catch(() => setSource('offline'));
+    Promise.allSettled([loadApps(), loadIdeas()]).then((results) => {
+      if (results.every((result) => result.status === 'rejected')) {
+        setSource('offline');
+      }
+    });
   }, []);
 
   const categories = useMemo(() => [...new Set(apps.map((app) => app.category).filter(Boolean))], [apps]);

@@ -100,12 +100,29 @@ Suggested columns in Supabase:
 - Frontend: `http://localhost:5173`
 - Backend: `http://localhost:4000`
 
+## Supabase setup (required for production)
+
+1. Create a new Supabase project.
+2. Open Supabase SQL Editor and run:
+   - `supabase/schema.sql`
+3. (Optional) Add starter records by running:
+   - `supabase/seed.sql`
+4. In Supabase Project Settings > API, copy:
+   - Project URL (`SUPABASE_URL`)
+   - Service Role Key (`SUPABASE_SERVICE_ROLE_KEY`)
+
 ## Vercel notes
 
-- Deploy the React frontend as a Vite application.
-- Deploy the Express backend separately, or convert the routes into Vercel serverless functions.
-- Add `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Vercel environment variables.
-- The local fallback mode is useful for UI development before Supabase tables exist.
+- This repo already includes Vercel serverless routes inside `frontend/api`.
+- In Vercel, set **Root Directory** to `frontend`.
+- Build command: `npm run build`
+- Output directory: `dist`
+- Add these environment variables in Vercel Project Settings:
+  - `SUPABASE_URL`
+  - `SUPABASE_SERVICE_ROLE_KEY`
+- Redeploy after saving env vars.
+
+If Supabase variables are not set, the API uses in-memory fallback data. This is useful for UI preview but data will not persist.
 
 ## Next ideas
 
