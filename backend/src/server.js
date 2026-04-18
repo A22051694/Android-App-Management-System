@@ -3,12 +3,19 @@ import express from 'express';
 import cors from 'cors';
 import { seedApps, seedIdeas } from './data.js';
 import { hasSupabaseConfig, supabase } from './supabase.js';
+import legalRouter from './routes/legal.js';
+import complianceRouter from './routes/compliance.js';
+import releasesRouter from './routes/releases.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
 
 app.use(cors());
 app.use(express.json());
+
+app.use('/view', legalRouter);
+app.use('/api', complianceRouter);
+app.use('/api', releasesRouter);
 
 const fallbackApps = [...seedApps];
 const fallbackIdeas = [...seedIdeas];
@@ -32,7 +39,8 @@ const normalizeAppPayload = (payload) => ({
     : String(payload.tags || '')
         .split(',')
         .map((tag) => tag.trim())
-        .filter(Boolean)
+        .filter(Boolean),
+  slug: payload.slug?.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || null
 });
 
 const normalizeIdeaPayload = (payload) => ({
@@ -113,6 +121,7 @@ app.post('/api/apps', async (req, res) => {
       id: createId('app'),
       created_at: timestamp(),
       updated_at: timestamp(),
+      slug: null,
       ...payload
     };
 

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { AppTable } from './components/AppTable';
 import { StatCard } from './components/StatCard';
 import { StatusBadge } from './components/StatusBadge';
+import { ComplianceTab } from './components/ComplianceTab';
 
 const navigation = ['Dashboard', 'Apps', 'Ideas', 'Settings'];
 const statusOptions = ['Idea', 'In Progress', 'Completed'];
@@ -14,7 +15,8 @@ const defaultApp = {
   description: '',
   links: { github: '', playStore: '' },
   notes: '',
-  tags: ''
+  tags: '',
+  slug: ''
 };
 const defaultIdea = { title: '', category: '', description: '', tags: '' };
 
@@ -263,6 +265,11 @@ function AppFormPage({ title, form, setForm, onSubmit, onCancel, submitLabel }) 
         </label>
 
         <label className="text-sm text-slate-300">
+          Slug (for public legal URLs)
+          <input value={form.slug} onChange={(event) => updateField('slug', event.target.value)} placeholder="my-app-name" className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-400" />
+        </label>
+
+        <label className="text-sm text-slate-300">
           Type
           <select value={form.type} onChange={(event) => updateField('type', event.target.value)} className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-400">
             {typeOptions.map((option) => <option key={option}>{option}</option>)}
@@ -315,9 +322,18 @@ function AppFormPage({ title, form, setForm, onSubmit, onCancel, submitLabel }) 
 }
 
 function AppDetailPage({ app, onEdit, onDelete }) {
+  const [activeTab, setActiveTab] = useState('overview');
+
   if (!app) {
     return null;
   }
+
+  const baseUrl = window.location.origin.replace(':5173', ':4000');
+
+  const tabs = [
+    { id: 'overview', label: 'Overview' },
+    { id: 'compliance', label: 'Compliance & Releases' }
+  ];
 
   return (
     <section className="rounded-[2rem] border border-slate-800 bg-slate-900/70 p-6">
@@ -335,32 +351,57 @@ function AppDetailPage({ app, onEdit, onDelete }) {
         </div>
       </div>
 
-      <div className="mt-8 grid gap-4 lg:grid-cols-3">
-        <InfoCard label="Type" value={app.type} />
-        <InfoCard label="Category" value={app.category} />
-        <InfoCard label="Last updated" value={formatDate(app.updated_at || app.created_at)} />
+      <div className="mt-6 flex gap-2">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`rounded-full px-4 py-2 text-sm transition ${
+              activeTab === tab.id ? 'bg-violet-500 text-white' : 'bg-slate-950 text-slate-300 hover:bg-slate-800'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <div className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <div className="space-y-6">
-          <DetailBlock title="Links">
-            <LinkItem label="GitHub" href={app.links?.github} />
-            <LinkItem label="Play Store" href={app.links?.playStore} />
-          </DetailBlock>
+      {activeTab === 'overview' && (
+        <>
+          <div className="mt-8 grid gap-4 lg:grid-cols-3">
+            <InfoCard label="Type" value={app.type} />
+            <InfoCard label="Category" value={app.category} />
+            <InfoCard label="Last updated" value={formatDate(app.updated_at || app.created_at)} />
+          </div>
 
-          <DetailBlock title="Tags">
-            <div className="flex flex-wrap gap-2">
-              {parseTags(app.tags).length ? parseTags(app.tags).map((tag) => (
-                <span key={tag} className="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">#{tag}</span>
-              )) : <p className="text-sm text-slate-500">No tags yet.</p>}
+          <div className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+            <div className="space-y-6">
+              <DetailBlock title="Links">
+                <LinkItem label="GitHub" href={app.links?.github} />
+                <LinkItem label="Play Store" href={app.links?.playStore} />
+              </DetailBlock>
+
+              <DetailBlock title="Tags">
+                <div className="flex flex-wrap gap-2">
+                  {parseTags(app.tags).length ? parseTags(app.tags).map((tag) => (
+                    <span key={tag} className="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">#{tag}</span>
+                  )) : <p className="text-sm text-slate-500">No tags yet.</p>}
+                </div>
+              </DetailBlock>
             </div>
-          </DetailBlock>
-        </div>
 
-        <DetailBlock title="Notes / Idea Vault">
-          <p className="whitespace-pre-wrap text-sm leading-7 text-slate-300">{app.notes || 'No notes yet.'}</p>
-        </DetailBlock>
-      </div>
+            <DetailBlock title="Notes / Idea Vault">
+              <p className="whitespace-pre-wrap text-sm leading-7 text-slate-300">{app.notes || 'No notes yet.'}</p>
+            </DetailBlock>
+          </div>
+        </>
+      )}
+
+      {activeTab === 'compliance' && (
+        <div className="mt-8">
+          <ComplianceTab app={app} baseUrl={baseUrl} />
+        </div>
+      )}
     </section>
   );
 }
@@ -571,7 +612,8 @@ export default function App() {
       ...defaultApp,
       ...app,
       links: { github: app.links?.github || '', playStore: app.links?.playStore || '' },
-      tags: parseTags(app.tags).join(', ')
+      tags: parseTags(app.tags).join(', '),
+      slug: app.slug || ''
     });
     setPage('App Form');
   };
