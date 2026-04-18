@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy – {{appName}}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 760px; margin: 0 auto; padding: 2rem 1.5rem; color: #1a1a2e; line-height: 1.7; }
+    h1 { font-size: 1.75rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.15rem; margin-top: 2rem; color: #3730a3; }
+    p, li { font-size: 0.95rem; color: #374151; }
+    ul { padding-left: 1.5rem; }
+    a { color: #4f46e5; }
+    .meta { font-size: 0.8rem; color: #9ca3af; margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Application: <strong>{{appName}}</strong> &nbsp;|&nbsp; Last updated: {{lastUpdated}}</p>
+
+  <p>This Privacy Policy describes how <strong>{{appName}}</strong> collects, uses, and shares information about you when you use our application.</p>
+
+  {{#if hasCollectedData}}
+  <h2>Information We Collect</h2>
+  <p>We may collect the following types of data from you:</p>
+  <ul>
+    {{#each collectedData}}
+    <li><strong>{{this.label}}</strong>{{#if this.purpose}} – {{this.purpose}}{{/if}}</li>
+    {{/each}}
+  </ul>
+  {{else}}
+  <h2>Information We Collect</h2>
+  <p>This app does not collect any personal data.</p>
+  {{/if}}
+
+  {{#if hasThirdPartySDKs}}
+  <h2>Third-Party Services</h2>
+  <p>We use the following third-party SDKs which may independently collect data per their own privacy policies:</p>
+  <ul>
+    {{#each thirdPartySDKs}}
+    <li>{{this}}</li>
+    {{/each}}
+  </ul>
+  {{/if}}
+
+  {{#if hasUserAccounts}}
+  <h2>User Accounts</h2>
+  <p>This app supports user accounts. When you create an account, we collect your account credentials and profile information necessary to provide the service. You may request deletion of your account and associated data at any time.</p>
+  {{/if}}
+
+  <h2>Data Retention</h2>
+  <p>We retain your data only as long as necessary to provide the service or as required by applicable law. You may request deletion at any time by visiting our <a href="{{dataDeletionUrl}}">Data Deletion page</a>.</p>
+
+  <h2>Your Rights</h2>
+  <p>Depending on your jurisdiction, you may have the right to access, correct, or delete the personal data we hold about you. To exercise these rights, please contact us at <a href="mailto:{{supportEmail}}">{{supportEmail}}</a>.</p>
+
+  <h2>Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. We will notify you of any material changes by updating the date at the top of this page.</p>
+
+  <h2>Contact Us</h2>
+  <p>If you have any questions about this Privacy Policy, please contact us at <a href="mailto:{{supportEmail}}">{{supportEmail}}</a>.</p>
+</body>
+</html>
