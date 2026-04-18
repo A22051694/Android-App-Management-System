@@ -33,7 +33,7 @@ const DATA_SAFETY_MAP = {
   'Coarse Location': { label: 'Approximate location', purpose: 'Used for region-based content' },
   'Device ID': { label: 'Device identifiers', purpose: 'Used for analytics and crash reporting' },
   Email: { label: 'Email address', purpose: 'Used for account creation and communication' },
-  Name: { label: 'Name', purpose: 'Used to personalise your experience' },
+  Name: { label: 'Name', purpose: 'Used to personalize your experience' },
   Photos: { label: 'Photos and videos', purpose: 'Accessed when you upload images' },
   Contacts: { label: 'Contacts', purpose: 'Used to enable sharing features' },
   'Camera / Microphone': { label: 'Camera and microphone', purpose: 'Used to capture photos or audio in-app' },
